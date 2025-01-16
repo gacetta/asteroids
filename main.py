@@ -5,6 +5,7 @@ from player import Player
 from shot import Shot
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
+from score import Score
 
 def main():
     print("Starting asteroids!")
@@ -20,7 +21,6 @@ def main():
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
 
-
     Asteroid.containers = (asteroids, updatable, drawable)
     Shot.containers = (shots, updatable, drawable)
     AsteroidField.containers = (updatable)
@@ -29,6 +29,8 @@ def main():
     Player.containers = (updatable, drawable)
 
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+
+    score = Score()
 
     dt = 0
 
@@ -40,6 +42,9 @@ def main():
         for object in updatable:
             object.update(dt)
 
+        # update difficulty
+        asteroid_field.update_difficulty(score.score)
+
         for asteroid in asteroids:
             if asteroid.collides_with(player):
                 print("Game over!")
@@ -48,9 +53,11 @@ def main():
             for shot in shots:
                 if shot.collides_with(asteroid):
                     shot.kill()
-                    asteroid.split()
+                    points = asteroid.split()
+                    score.update(points)
 
         screen.fill("black")
+        score.draw(screen)
         
         for object in drawable:
             object.draw(screen)
